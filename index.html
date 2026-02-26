@@ -3,239 +3,580 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Delta’s Links</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<title>DELTA // fsociety</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=VT323&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
-
-body {
-  font-family: 'Poppins', sans-serif;
-  margin: 0;
-  padding: 20px 0;
-  background: linear-gradient(135deg, #d7b1f3, #a97cf7);
-  position: relative; /* for absolute flowers */
-  overflow-x: hidden;
+:root {
+  --green: #00ff41;
+  --cyan: #00f5ff;
+  --magenta: #ff00ff;
+  --red: #ff003c;
+  --yellow: #ffff00;
+  --orange: #ff6600;
+  --darker: #000000;
 }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--darker); color: var(--green); font-family: 'Share Tech Mono', monospace; overflow-x: hidden; cursor: none; }
 
-/* Floating flowers */
-.flower {
-  position: absolute;
-  font-size: 2rem;
-  opacity: 0.7;
-  transition: transform 0.3s ease;
-  pointer-events: none; /* allow clicks on buttons */
-}
+.cursor { position: fixed; width: 20px; height: 20px; border: 2px solid var(--cyan); border-radius: 50%; pointer-events: none; z-index: 99999; transform: translate(-50%,-50%); mix-blend-mode: difference; }
+.cursor::after { content:''; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:4px; height:4px; background:var(--magenta); border-radius:50%; }
+.cursor-trail { position:fixed; width:8px; height:8px; background:var(--green); border-radius:50%; pointer-events:none; z-index:99998; transform:translate(-50%,-50%); opacity:0.5; }
 
-/* Loading screen */
-#loading {
-  position: fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background: #a97cf7;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  z-index: 9999;
-  color: white;
-  font-size: 2rem;
-  transition: opacity 0.5s ease;
-}
+body::before { content:''; position:fixed; top:0; left:0; right:0; bottom:0; background:repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,255,65,0.015) 2px, rgba(0,255,65,0.015) 4px); pointer-events:none; z-index:9998; }
+body::after { content:''; position:fixed; top:0; left:0; right:0; bottom:0; background:radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.85) 100%); pointer-events:none; z-index:9997; }
 
-.spinner {
-  border: 6px solid rgba(255,255,255,0.3);
-  border-top: 6px solid white;
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: spin 1s linear infinite;
-  margin-top: 20px;
-}
+#matrix-rain { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; opacity:0.12; }
 
-@keyframes spin {
-  0% { transform: rotate(0deg);}
-  100% { transform: rotate(360deg);}
-}
+main { position:relative; z-index:10; }
 
-/* Card */
-.card {
-  max-width: 440px;
-  width: 90%;
-  margin: 20px auto;
-  text-align: center;
-  background: rgba(255,255,255,0.95);
-  border-radius: 35px;
-  padding: 40px 20px;
-  box-shadow: 0 12px 25px rgba(0,0,0,0.25);
-  opacity: 0;
-  transform: translateY(30px);
-  transition: all 0.8s ease;
-}
+nav { position:fixed; top:0; left:0; right:0; z-index:9999; display:flex; justify-content:flex-end; padding:1rem 2rem; background:linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); }
+.nav-links { display:flex; gap:1.5rem; list-style:none; flex-wrap:wrap; }
+.nav-links a { font-family:'Share Tech Mono',monospace; font-size:0.65rem; color:rgba(0,255,65,0.5); text-decoration:none; letter-spacing:0.2em; text-transform:uppercase; transition:color 0.2s, text-shadow 0.2s; }
+.nav-links a::before { content:'//'; margin-right:4px; opacity:0; transition:opacity 0.2s; }
+.nav-links a:hover { color:var(--cyan); text-shadow:0 0 10px var(--cyan); }
+.nav-links a:hover::before { opacity:1; }
 
-.card.show {
-  opacity: 1;
-  transform: translateY(0);
-}
+.status-bar { position:fixed; bottom:0; left:0; right:0; z-index:9999; background:rgba(0,0,0,0.9); border-top:1px solid rgba(0,255,65,0.2); display:flex; justify-content:space-between; align-items:center; padding:0.3rem 1rem; font-size:0.6rem; color:rgba(0,255,65,0.5); letter-spacing:0.1em; font-family:'Share Tech Mono',monospace; flex-wrap:wrap; gap:0.5rem; }
+.status-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--green); margin-right:6px; box-shadow:0 0 6px var(--green); animation:pulse 2s infinite; }
 
-.card::before {
-  content: "🌸🌸";
-  font-size: 3rem;
-  position: absolute;
-  top: 15px;
-  left: 15px;
-}
+#hero { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:2rem; position:relative; overflow:hidden; }
+.hero-grid { position:absolute; top:0; left:0; right:0; bottom:0; background-image:linear-gradient(rgba(0,255,65,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(0,255,65,0.06) 1px, transparent 1px); background-size:50px 50px; animation:gridPulse 4s ease-in-out infinite; }
+@keyframes gridPulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+.hero-corner { position:absolute; width:80px; height:80px; border-color:var(--cyan); border-style:solid; opacity:0.7; }
+.corner-tl { top:20px; left:20px; border-width:2px 0 0 2px; }
+.corner-tr { top:20px; right:20px; border-width:2px 2px 0 0; }
+.corner-bl { bottom:20px; left:20px; border-width:0 0 2px 2px; }
+.corner-br { bottom:20px; right:20px; border-width:0 2px 2px 0; }
 
-h1 {
-  color: #6b2cbf;
-  margin-bottom: 20px;
-  font-size: 2rem;
-}
+.boot-sequence { font-family:'Share Tech Mono',monospace; color:var(--green); font-size:0.75rem; position:absolute; top:30px; left:50%; transform:translateX(-50%); white-space:nowrap; overflow:hidden; border-right:2px solid var(--green); animation:typeBoot 3s steps(60) forwards, blinkCursor 0.75s step-end infinite; width:0; }
+@keyframes typeBoot { to{width:56ch} }
+@keyframes blinkCursor { 50%{border-color:transparent} }
 
-.link-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-  color: white;
-  background: #9c59d1;
-  padding: 14px 0;
-  margin: 8px 0;
-  border-radius: 20px;
-  transition: 0.3s;
-  font-weight: 600;
-  font-size: 1.05rem;
-  flex-wrap: wrap;
-}
+.delta-symbol { font-family:'Orbitron',monospace; font-size:clamp(5rem,15vw,12rem); font-weight:900; color:transparent; -webkit-text-stroke:2px var(--green); line-height:1; position:relative; animation:glitchBig 5s infinite; text-shadow:0 0 30px rgba(0,255,65,0.3); }
+.delta-symbol::before { content:attr(data-text); position:absolute; top:0; left:0; color:transparent; -webkit-text-stroke:2px var(--red); animation:glitchRed 5s infinite; clip-path:polygon(0 20%,100% 20%,100% 40%,0 40%); }
+.delta-symbol::after { content:attr(data-text); position:absolute; top:0; left:0; color:transparent; -webkit-text-stroke:2px var(--cyan); animation:glitchCyan 5s infinite; clip-path:polygon(0 60%,100% 60%,100% 80%,0 80%); }
+@keyframes glitchBig { 0%,90%,100%{transform:translate(0)} 91%{transform:translate(-4px,2px)} 92%{transform:translate(4px,-2px)} 93%{transform:translate(-2px,-4px)} 96%{transform:translate(3px,1px)} 97%{transform:translate(-3px,-1px)} }
+@keyframes glitchRed { 0%,90%,100%{transform:translate(0);opacity:0} 91%{transform:translate(6px,0);opacity:1} 93%{transform:translate(-6px,0);opacity:1} 95%{opacity:0} }
+@keyframes glitchCyan { 0%,85%,100%{transform:translate(0);opacity:0} 86%{transform:translate(-5px,0);opacity:1} 88%{transform:translate(5px,0);opacity:1} 90%{opacity:0} }
 
-.link-btn i {
-  margin-right: 8px;
-  font-size: 1.3rem;
-}
+.handle { font-family:'VT323',monospace; font-size:clamp(1.5rem,5vw,3.5rem); color:var(--cyan); letter-spacing:0.3em; margin-top:-0.5rem; animation:flicker 7s infinite; text-shadow:0 0 20px var(--cyan); }
+@keyframes flicker { 0%,19%,21%,23%,25%,54%,56%,100%{opacity:1} 20%,24%,55%{opacity:0.4} }
 
-.link-btn:hover {
-  background: #7a32b0;
-}
+.tagline-wrap { margin-top:2.5rem; display:flex; flex-direction:column; align-items:center; gap:0.5rem; }
+.tagline { font-size:clamp(0.7rem,2vw,1rem); color:var(--magenta); text-align:center; letter-spacing:0.15em; animation:fadeSlideUp 1s ease forwards; opacity:0; text-shadow:0 0 15px var(--magenta); }
+.tagline:nth-child(1){animation-delay:3s} .tagline:nth-child(2){animation-delay:3.3s} .tagline:nth-child(3){animation-delay:3.6s} .tagline:nth-child(4){animation-delay:3.9s}
+@keyframes fadeSlideUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
 
-.embed-btn {
-  margin: 10px 0;
-  display: inline-block;
-}
+.scroll-indicator { position:absolute; bottom:40px; display:flex; flex-direction:column; align-items:center; gap:5px; animation:fadeSlideUp 1s 4.5s ease forwards; opacity:0; }
+.scroll-indicator span { font-size:0.65rem; color:var(--green); letter-spacing:0.3em; }
+.scroll-arrow { width:20px; height:20px; border-right:2px solid var(--green); border-bottom:2px solid var(--green); transform:rotate(45deg); animation:bounce 1.5s infinite; }
+@keyframes bounce { 0%,100%{transform:rotate(45deg) translateY(0)} 50%{transform:rotate(45deg) translateY(8px)} }
 
-.embed-btn img {
-  max-width: 100%;
-  height: auto;
-  border-radius: 10px;
-  transition: transform 0.3s ease;
-}
+section { position:relative; z-index:10; padding:6rem 2rem; max-width:1200px; margin:0 auto; }
+.section-header { display:flex; align-items:center; gap:1rem; margin-bottom:3rem; }
+.section-num { font-family:'VT323',monospace; font-size:1rem; color:var(--orange); opacity:0.8; }
+.section-title { font-family:'Orbitron',monospace; font-size:clamp(1.2rem,4vw,2rem); font-weight:700; color:var(--cyan); text-transform:uppercase; letter-spacing:0.2em; position:relative; }
+.section-title::after { content:''; position:absolute; bottom:-8px; left:0; width:100%; height:1px; background:linear-gradient(90deg,var(--cyan),transparent); }
+.section-line { flex:1; height:1px; background:linear-gradient(90deg,rgba(0,245,255,0.3),transparent); }
+.section-subtitle { font-family:'VT323',monospace; font-size:1rem; color:rgba(0,255,65,0.4); letter-spacing:0.4em; text-transform:uppercase; margin-bottom:1rem; }
 
-.embed-btn img:hover {
-  transform: scale(1.05);
-}
+.divider { position:relative; z-index:10; width:100%; height:1px; background:linear-gradient(90deg,transparent,rgba(0,255,65,0.3),rgba(0,245,255,0.3),rgba(255,0,255,0.3),transparent); }
+.divider::before { content:'--- SYSTEM ACTIVE ---'; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); background:var(--darker); padding:0 1rem; font-size:0.55rem; color:rgba(0,255,65,0.4); letter-spacing:0.4em; white-space:nowrap; }
 
-.email {
-  margin-top: 20px;
-  font-size: 0.95rem;
-  color: #4b1c71;
-  word-break: break-all;
-}
+.terminal-box { background:rgba(0,255,65,0.03); border:1px solid rgba(0,255,65,0.2); padding:2rem; position:relative; margin-bottom:2rem; }
+.terminal-box::before { content:attr(data-label); position:absolute; top:-10px; left:20px; background:var(--darker); padding:0 10px; font-size:0.7rem; color:var(--green); letter-spacing:0.2em; }
+.manifesto-text { font-size:clamp(0.85rem,1.8vw,1.05rem); line-height:1.9; color:rgba(0,255,65,0.85); margin-bottom:1rem; }
+.manifesto-text:last-child { margin-bottom:0; }
+.manifesto-text .highlight { color:var(--cyan); font-weight:bold; }
+.manifesto-text .radical { color:var(--magenta); text-shadow:0 0 10px var(--magenta); }
+.manifesto-text .danger { color:var(--red); text-shadow:0 0 10px var(--red); }
 
-.flowers {
-  font-size: 1.5rem;
-  margin-top: 15px;
-}
+#about { border-left:1px solid rgba(0,255,65,0.15); padding-left:3rem; }
+.identity-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin-top:2rem; }
+.identity-card { border:1px solid; padding:1.5rem; position:relative; overflow:hidden; transition:transform 0.3s, box-shadow 0.3s; cursor:default; }
+.identity-card:hover { transform:translateY(-4px); }
+.id-icon { font-size:2rem; margin-bottom:0.75rem; }
+.id-title { font-family:'Orbitron',monospace; font-size:0.75rem; font-weight:700; letter-spacing:0.15em; text-transform:uppercase; margin-bottom:0.5rem; }
+.id-desc { font-size:0.78rem; line-height:1.6; color:rgba(0,255,65,0.6); }
+.card-green { border-color:rgba(0,255,65,0.4); background:rgba(0,255,65,0.03); }
+.card-green .id-title { color:var(--green); }
+.card-green:hover { box-shadow:0 0 20px rgba(0,255,65,0.2); }
+.card-cyan { border-color:rgba(0,245,255,0.4); background:rgba(0,245,255,0.03); }
+.card-cyan .id-title { color:var(--cyan); }
+.card-cyan:hover { box-shadow:0 0 20px rgba(0,245,255,0.2); }
+.card-magenta { border-color:rgba(255,0,255,0.4); background:rgba(255,0,255,0.03); }
+.card-magenta .id-title { color:var(--magenta); }
+.card-magenta:hover { box-shadow:0 0 20px rgba(255,0,255,0.2); }
+.card-red { border-color:rgba(255,0,60,0.4); background:rgba(255,0,60,0.03); }
+.card-red .id-title { color:var(--red); }
+.card-red:hover { box-shadow:0 0 20px rgba(255,0,60,0.2); }
+.card-orange { border-color:rgba(255,102,0,0.4); background:rgba(255,102,0,0.03); }
+.card-orange .id-title { color:var(--orange); }
+.card-orange:hover { box-shadow:0 0 20px rgba(255,102,0,0.2); }
 
-@media (max-width: 480px) {
-  h1 { font-size: 1.8rem; }
-  .link-btn { font-size: 1rem; padding: 12px 0; }
-  .card { padding: 30px 15px; }
+.skills-container { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:2rem; }
+.skill-cat-title { font-family:'VT323',monospace; font-size:1.4rem; color:var(--yellow); letter-spacing:0.2em; margin-bottom:1rem; }
+.skill-cat-title::before { content:'> '; color:var(--green); }
+.skill-bar-wrap { margin-bottom:0.8rem; }
+.skill-label { display:flex; justify-content:space-between; font-size:0.75rem; color:rgba(0,255,65,0.7); margin-bottom:0.3rem; }
+.skill-bar { height:6px; background:rgba(0,255,65,0.1); border:1px solid rgba(0,255,65,0.2); overflow:hidden; }
+.skill-fill { height:100%; animation:fillBar 2s ease-out forwards; }
+@keyframes fillBar { from{width:0} }
+.fill-g { background:linear-gradient(90deg,rgba(0,255,65,0.4),var(--green)); box-shadow:0 0 8px rgba(0,255,65,0.5); }
+.fill-c { background:linear-gradient(90deg,rgba(0,245,255,0.4),var(--cyan)); box-shadow:0 0 8px rgba(0,245,255,0.5); }
+.fill-o { background:linear-gradient(90deg,rgba(255,102,0,0.4),var(--orange)); box-shadow:0 0 8px rgba(255,102,0,0.5); }
+.fill-m { background:linear-gradient(90deg,rgba(255,0,255,0.4),var(--magenta)); box-shadow:0 0 8px rgba(255,0,255,0.5); }
+
+.philosophy-section { border:1px solid rgba(255,0,255,0.2); padding:3rem; position:relative; background:rgba(255,0,255,0.02); margin:2rem 0; }
+.philosophy-section::before { content:'"'; position:absolute; top:-30px; left:30px; font-family:'VT323',monospace; font-size:6rem; color:var(--magenta); opacity:0.3; line-height:1; }
+.quote-text { font-family:'VT323',monospace; font-size:clamp(1.2rem,3vw,2rem); color:var(--magenta); line-height:1.5; text-align:center; letter-spacing:0.05em; text-shadow:0 0 20px rgba(255,0,255,0.4); }
+.quote-attr { text-align:right; margin-top:1rem; font-size:0.75rem; color:rgba(255,0,255,0.5); letter-spacing:0.2em; }
+.beliefs-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.5rem; margin-top:2rem; }
+
+.blog-card { display:flex; align-items:center; justify-content:space-between; gap:1.5rem; padding:1.8rem 2rem; border:1px solid rgba(0,255,65,0.25); background:rgba(0,255,65,0.03); text-decoration:none; position:relative; overflow:hidden; transition:transform 0.3s, box-shadow 0.3s; margin-bottom:2rem; }
+.blog-card::before { content:''; position:absolute; top:0; left:0; width:4px; height:0; background:var(--green); box-shadow:0 0 12px var(--green); transition:height 0.4s; }
+.blog-card:hover { transform:translateX(6px); box-shadow:0 0 30px rgba(0,255,65,0.1); }
+.blog-card:hover::before { height:100%; }
+.blog-left { display:flex; align-items:center; gap:1.5rem; }
+.blog-icon { font-size:2.5rem; flex-shrink:0; }
+.blog-label { font-size:0.65rem; color:rgba(0,255,65,0.4); letter-spacing:0.3em; margin-bottom:0.3rem; }
+.blog-title { font-family:'Orbitron',monospace; font-size:clamp(0.85rem,2vw,1.1rem); font-weight:700; color:var(--green); margin-bottom:0.4rem; }
+.blog-desc { font-size:0.8rem; color:rgba(0,255,65,0.55); line-height:1.5; }
+.blog-arrow { font-size:2rem; color:var(--green); opacity:0.3; transition:opacity 0.3s, transform 0.3s; flex-shrink:0; }
+.blog-card:hover .blog-arrow { opacity:1; transform:translateX(8px); }
+
+.projects-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.5rem; }
+.proj { display:flex; flex-direction:column; gap:0.8rem; padding:1.8rem; border:1px solid; text-decoration:none; position:relative; transition:transform 0.3s, box-shadow 0.3s; }
+.proj:hover { transform:translateY(-6px); }
+.proj-cyan { border-color:rgba(0,245,255,0.3); background:rgba(0,245,255,0.03); }
+.proj-cyan:hover { box-shadow:0 0 30px rgba(0,245,255,0.15); }
+.proj-red { border-color:rgba(255,0,60,0.3); background:rgba(255,0,60,0.03); }
+.proj-red:hover { box-shadow:0 0 30px rgba(255,0,60,0.15); }
+.proj-yellow { border-color:rgba(255,255,0,0.3); background:rgba(255,255,0,0.03); }
+.proj-yellow:hover { box-shadow:0 0 30px rgba(255,255,0,0.15); }
+.proj-head { display:flex; align-items:center; gap:0.5rem; }
+.proj-dot { width:8px; height:8px; border-radius:50%; animation:pulse 2s infinite; flex-shrink:0; }
+.proj-cyan .proj-dot { background:var(--cyan); box-shadow:0 0 6px var(--cyan); }
+.proj-red .proj-dot { background:var(--red); box-shadow:0 0 6px var(--red); }
+.proj-yellow .proj-dot { background:var(--yellow); box-shadow:0 0 6px var(--yellow); }
+.proj-live { font-size:0.6rem; letter-spacing:0.3em; }
+.proj-cyan .proj-live { color:var(--cyan); }
+.proj-red .proj-live { color:var(--red); }
+.proj-yellow .proj-live { color:var(--yellow); }
+.proj-role { margin-left:auto; font-family:'Orbitron',monospace; font-size:0.5rem; font-weight:700; letter-spacing:0.1em; border:1px solid; padding:0.2rem 0.4rem; text-transform:uppercase; white-space:nowrap; }
+.proj-cyan .proj-role { color:var(--cyan); border-color:rgba(0,245,255,0.4); }
+.proj-red .proj-role { color:var(--red); border-color:rgba(255,0,60,0.4); }
+.proj-yellow .proj-role { color:var(--yellow); border-color:rgba(255,255,0,0.4); }
+.proj-name { font-family:'Orbitron',monospace; font-size:clamp(0.95rem,2.5vw,1.25rem); font-weight:700; }
+.proj-cyan .proj-name { color:var(--cyan); text-shadow:0 0 15px rgba(0,245,255,0.4); }
+.proj-red .proj-name { color:var(--red); text-shadow:0 0 15px rgba(255,0,60,0.4); }
+.proj-yellow .proj-name { color:var(--yellow); text-shadow:0 0 15px rgba(255,255,0,0.3); }
+.proj-desc { font-size:0.78rem; color:rgba(0,255,65,0.55); line-height:1.7; flex:1; }
+.proj-foot { display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap; }
+.proj-tag { font-size:0.58rem; letter-spacing:0.15em; border:1px solid; padding:0.15rem 0.4rem; font-family:'Share Tech Mono',monospace; }
+.proj-cyan .proj-tag { color:var(--cyan); border-color:rgba(0,245,255,0.3); }
+.proj-red .proj-tag { color:var(--red); border-color:rgba(255,0,60,0.3); }
+.proj-yellow .proj-tag { color:var(--yellow); border-color:rgba(255,255,0,0.3); }
+.proj-arr { margin-left:auto; font-size:1rem; }
+.proj-cyan .proj-arr { color:var(--cyan); }
+.proj-red .proj-arr { color:var(--red); }
+.proj-yellow .proj-arr { color:var(--yellow); }
+
+.contact-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:1.5rem; margin-top:1rem; }
+.cc { display:flex; align-items:center; gap:1.2rem; padding:1.5rem; border:1px solid; text-decoration:none; position:relative; overflow:hidden; transition:transform 0.2s, box-shadow 0.3s; }
+.cc:hover { transform:translateX(8px); }
+.cc::before { content:''; position:absolute; left:0; top:0; width:3px; height:0; transition:height 0.3s; }
+.cc:hover::before { height:100%; }
+.cc-em { border-color:rgba(0,255,65,0.3); background:rgba(0,255,65,0.03); color:var(--green); }
+.cc-em::before { background:var(--green); }
+.cc-em:hover { box-shadow:0 0 25px rgba(0,255,65,0.15); }
+.cc-gh { border-color:rgba(0,245,255,0.3); background:rgba(0,245,255,0.03); color:var(--cyan); }
+.cc-gh::before { background:var(--cyan); }
+.cc-gh:hover { box-shadow:0 0 25px rgba(0,245,255,0.15); }
+.cc-tg { border-color:rgba(255,0,255,0.3); background:rgba(255,0,255,0.03); color:var(--magenta); }
+.cc-tg::before { background:var(--magenta); }
+.cc-tg:hover { box-shadow:0 0 25px rgba(255,0,255,0.15); }
+.cc-mx { border-color:rgba(255,102,0,0.3); background:rgba(255,102,0,0.03); color:var(--orange); }
+.cc-mx::before { background:var(--orange); }
+.cc-mx:hover { box-shadow:0 0 25px rgba(255,102,0,0.15); }
+.cc-md { border-color:rgba(255,255,0,0.3); background:rgba(255,255,0,0.03); color:var(--yellow); }
+.cc-md::before { background:var(--yellow); }
+.cc-md:hover { box-shadow:0 0 25px rgba(255,255,0,0.15); }
+.cc-icon { font-size:1.8rem; flex-shrink:0; filter:drop-shadow(0 0 5px currentColor); }
+.cc-info { flex:1; overflow:hidden; }
+.cc-platform { font-family:'Orbitron',monospace; font-size:0.62rem; font-weight:700; letter-spacing:0.2em; opacity:0.6; text-transform:uppercase; margin-bottom:0.25rem; }
+.cc-handle { font-size:0.85rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cc-arr { font-size:1.2rem; opacity:0; transform:translateX(-10px); transition:opacity 0.2s, transform 0.2s; }
+.cc:hover .cc-arr { opacity:1; transform:translateX(0); }
+
+footer { position:relative; z-index:10; text-align:center; padding:2rem; border-top:1px solid rgba(0,255,65,0.1); }
+.footer-ascii { font-family:'VT323',monospace; font-size:0.65rem; color:rgba(0,255,65,0.15); margin-bottom:1rem; white-space:pre; line-height:1.2; }
+.footer-text { font-family:'Share Tech Mono',monospace; font-size:0.7rem; color:rgba(0,255,65,0.3); letter-spacing:0.2em; }
+
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+.reveal { opacity:0; transform:translateY(30px); transition:opacity 0.8s, transform 0.8s; }
+.reveal.visible { opacity:1; transform:translateY(0); }
+
+@media (max-width:600px) {
+  #about { border-left:none; padding-left:0; }
+  .philosophy-section { padding:1.5rem; }
+  .nav-links { gap:0.8rem; }
+  .blog-card { flex-direction:column; }
+  .blog-left { flex-direction:column; }
 }
 </style>
 </head>
 <body>
 
-<!-- Floating flowers -->
-<div class="flower" id="f1" style="top:5%; left:10%;">🌸</div>
-<div class="flower" id="f2" style="top:20%; left:70%;">🌺</div>
-<div class="flower" id="f3" style="top:50%; left:25%;">💜</div>
-<div class="flower" id="f4" style="top:75%; left:55%;">🌸</div>
+<div class="cursor" id="cursor"></div>
+<div class="cursor-trail" id="trail"></div>
+<canvas id="matrix-rain"></canvas>
 
-<!-- Loading screen -->
-<div id="loading">
-  Welcome, friend! 🌸
-  <div class="spinner"></div>
+<nav>
+  <ul class="nav-links">
+    <li><a href="#about">ABOUT</a></li>
+    <li><a href="#skills">SKILLS</a></li>
+    <li><a href="#philosophy">PHILOSOPHY</a></li>
+    <li><a href="#projects">PROJECTS</a></li>
+    <li><a href="#contact">CONTACT</a></li>
+  </ul>
+</nav>
+
+<div class="status-bar">
+  <div><span class="status-dot"></span>SYSTEM ONLINE // ENCRYPTION ACTIVE // TOR RECOMMENDED</div>
+  <div id="live-time"></div>
+  <div>KERNEL: FREEDOM v&#8734;</div>
 </div>
 
-<!-- Card -->
-<div class="card" id="card">
-  <h1>Delta 🌸</h1>
+<main>
 
-  <!-- Preferred order links -->
-  <a href="https://delta-fsociety.codeberg.page/#home" target="_blank" class="link-btn"><i class="fas fa-blog"></i>Blog</a>
-  <a href="https://mastodon.social/@delta_fsociety" target="_blank" class="link-btn"><i class="fab fa-mastodon"></i>Mastodon</a>
-  <a href="https://pixelfed.social/delta_fsociety" target="_blank" class="link-btn"><i class="fas fa-camera"></i>Pixelfed</a>
-  <a href="https://t.me/DeltaEZ" target="_blank" class="link-btn"><i class="fab fa-telegram-plane"></i>Telegram</a>
-  <a href="https://www.linkedin.com/in/deltafs/?skipRedirect=true" target="_blank" class="link-btn"><i class="fab fa-linkedin"></i>LinkedIn</a>
+  <section id="hero" style="max-width:100%;padding:0;">
+    <div class="hero-grid"></div>
+    <div class="hero-corner corner-tl"></div>
+    <div class="hero-corner corner-tr"></div>
+    <div class="hero-corner corner-bl"></div>
+    <div class="hero-corner corner-br"></div>
+    <div class="boot-sequence">LOADING IDENTITY... DECRYPTING... ACCESS GRANTED [FSOCIETY KERNEL]</div>
+    <div class="delta-symbol" data-text="&#916;">&#916;</div>
+    <div class="handle">D E L T A</div>
+    <div class="tagline-wrap">
+      <div class="tagline">// SOFTWARE FREEDOM ADVOCATE</div>
+      <div class="tagline">// INTERNET FREEDOM FIGHTER // HACKTIVIST</div>
+      <div class="tagline">// CYBERSECURITY ENTHUSIAST // PHILOSOPHER</div>
+      <div class="tagline">// ANARCHIST // FSOCIETY</div>
+    </div>
+    <div class="scroll-indicator">
+      <span>SCROLL</span>
+      <div class="scroll-arrow"></div>
+    </div>
+  </section>
 
-  <!-- Other links -->
-  <a href="https://exquisite.tube/c/deltalibre/videos" target="_blank" class="link-btn"><i class="fas fa-video"></i>PeerTube</a>
-  <a href="https://zist.digital" target="_blank" class="link-btn"><i class="fas fa-globe"></i>Project Website</a>
-  <a href="https://github.com/Deltafsociety" target="_blank" class="link-btn"><i class="fab fa-github"></i>GitHub</a>
-  <a href="https://codeberg.org/delta-fsociety" target="_blank" class="link-btn"><i class="fas fa-code"></i>Codeberg</a>
+  <div class="divider"></div>
 
-  <!-- Coindrop and CoffeeBede -->
-  <div class="embed-btn">
-    <a href="https://coindrop.to/delta" target="_blank">
-      <img src="https://coindrop.to/embed-button.png" alt="Coindrop.to me">
+  <section id="about">
+    <div class="section-header reveal">
+      <span class="section-num">01</span>
+      <h2 class="section-title">WHO_IS_DELTA</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="terminal-box reveal" data-label="// MANIFESTO.txt">
+      <p class="manifesto-text">I am <span class="highlight">Delta</span> — not an identity they gave me, but one I chose. A <span class="radical">hacktivist</span>, philosopher, and digital freedom fighter operating at the intersection of <span class="highlight">code, ethics, and revolt</span>.</p>
+      <p class="manifesto-text">I believe the <span class="danger">internet is a commons</span> — not a commodity. Information wants to be free. Knowledge belongs to no one and therefore to <span class="highlight">everyone</span>. I fight against surveillance capitalism, digital authoritarianism, and the walled gardens designed to chain minds and monetize souls.</p>
+      <p class="manifesto-text"><span class="radical">Anarchism</span> isn't chaos — it's the radical trust that humans can organize without coercion. I bring this philosophy into cyberspace: <span class="highlight">decentralized systems, federated networks, open protocols</span>. The architecture of freedom must be built, not just demanded.</p>
+      <p class="manifesto-text">I wield <span class="highlight">cybersecurity</span> not as a weapon of control, but as a <span class="danger">shield for the powerless</span>. Every firewall I break is a door I open. Every vulnerability I expose is a lie I reveal. Security is knowledge — and knowledge belongs to <span class="radical">everyone</span>.</p>
+    </div>
+    <div class="identity-grid reveal">
+      <div class="identity-card card-green"><div class="id-icon">&#9889;</div><div class="id-title">Software Freedom</div><div class="id-desc">Free software is a political statement. GPL is not a license — it's a manifesto. Your code, your freedom.</div></div>
+      <div class="identity-card card-cyan"><div class="id-icon">&#127760;</div><div class="id-title">Internet Freedom</div><div class="id-desc">Net neutrality, open protocols, decentralization. The net must remain wild, ungoverned, and ours.</div></div>
+      <div class="identity-card card-magenta"><div class="id-icon">&#128275;</div><div class="id-title">Hacktivist</div><div class="id-desc">Technology as civil disobedience. Code as protest. Hacking power back to the people.</div></div>
+      <div class="identity-card card-red"><div class="id-icon">&#128737;</div><div class="id-title">Cybersecurity</div><div class="id-desc">Offensive knowledge in service of defensive ethics. Breaking to understand, exposing to protect.</div></div>
+      <div class="identity-card card-orange"><div class="id-icon">&#128214;</div><div class="id-title">Philosophy &amp; Anarchy</div><div class="id-desc">From Kropotkin to Foucault, Bakunin to Chomsky. Power analyzed, hierarchies dismantled, minds liberated.</div></div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section id="skills">
+    <div class="section-header reveal">
+      <span class="section-num">02</span>
+      <h2 class="section-title">CAPABILITIES</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="skills-container">
+      <div class="reveal">
+        <div class="skill-cat-title">SECURITY</div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>Penetration Testing</span><span>███▒</span></div><div class="skill-bar"><div class="skill-fill fill-g" style="width:80%"></div></div></div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>OSINT</span><span>████</span></div><div class="skill-bar"><div class="skill-fill fill-g" style="width:90%"></div></div></div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>Network Analysis</span><span>███▒</span></div><div class="skill-bar"><div class="skill-fill fill-g" style="width:75%"></div></div></div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>Threat Modeling</span><span>███░</span></div><div class="skill-bar"><div class="skill-fill fill-g" style="width:70%"></div></div></div>
+      </div>
+      <div class="reveal">
+        <div class="skill-cat-title">FREEDOM STACK</div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>Linux / FOSS</span><span>████</span></div><div class="skill-bar"><div class="skill-fill fill-c" style="width:95%"></div></div></div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>Tor / Anonymity</span><span>████</span></div><div class="skill-bar"><div class="skill-fill fill-c" style="width:88%"></div></div></div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>Encryption / PGP</span><span>███▒</span></div><div class="skill-bar"><div class="skill-fill fill-c" style="width:82%"></div></div></div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>Decentralized Systems</span><span>███░</span></div><div class="skill-bar"><div class="skill-fill fill-c" style="width:72%"></div></div></div>
+      </div>
+      <div class="reveal">
+        <div class="skill-cat-title">TECH STACK</div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>GNU+Linux</span><span>████</span></div><div class="skill-bar"><div class="skill-fill fill-o" style="width:97%"></div></div></div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>Bash / Shell</span><span>████</span></div><div class="skill-bar"><div class="skill-fill fill-o" style="width:90%"></div></div></div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>Python</span><span>████</span></div><div class="skill-bar"><div class="skill-fill fill-o" style="width:88%"></div></div></div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>Rust</span><span>███▒</span></div><div class="skill-bar"><div class="skill-fill fill-o" style="width:75%"></div></div></div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>Docker</span><span>███▒</span></div><div class="skill-bar"><div class="skill-fill fill-o" style="width:80%"></div></div></div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>Git</span><span>████</span></div><div class="skill-bar"><div class="skill-fill fill-o" style="width:92%"></div></div></div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>MariaDB</span><span>███░</span></div><div class="skill-bar"><div class="skill-fill fill-o" style="width:70%"></div></div></div>
+      </div>
+      <div class="reveal">
+        <div class="skill-cat-title">PHILOSOPHY</div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>Political Theory</span><span>████</span></div><div class="skill-bar"><div class="skill-fill fill-m" style="width:90%"></div></div></div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>Ethics &amp; Technology</span><span>████</span></div><div class="skill-bar"><div class="skill-fill fill-m" style="width:88%"></div></div></div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>Anarchist Theory</span><span>████</span></div><div class="skill-bar"><div class="skill-fill fill-m" style="width:93%"></div></div></div>
+        <div class="skill-bar-wrap"><div class="skill-label"><span>Digital Rights</span><span>████</span></div><div class="skill-bar"><div class="skill-fill fill-m" style="width:95%"></div></div></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section id="philosophy">
+    <div class="section-header reveal">
+      <span class="section-num">03</span>
+      <h2 class="section-title">DOCTRINE</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="philosophy-section reveal">
+      <div class="quote-text">"The state is not abolished, it withers away — and so too will every walled garden, every surveillance apparatus, every digital chain disguised as a terms of service."</div>
+      <div class="quote-attr">-- DELTA // FSOCIETY</div>
+    </div>
+    <div class="beliefs-grid">
+      <div class="terminal-box reveal" data-label="// BELIEF_01">
+        <p class="manifesto-text"><span class="highlight">Mutual Aid &gt; Hierarchy.</span> Power corrupts, and distributed power corrupts nothing. The horizontal network is stronger than any vertical command structure. This applies to code, to society, to everything.</p>
+      </div>
+      <div class="terminal-box reveal" data-label="// BELIEF_02">
+        <p class="manifesto-text"><span class="radical">Privacy is not a crime</span> — it is a human right. Anonymity is the armor of the dissident, the journalist, the whistleblower. Surveil the powerful, <span class="danger">shield the vulnerable</span>.</p>
+      </div>
+      <div class="terminal-box reveal" data-label="// BELIEF_03">
+        <p class="manifesto-text"><span class="highlight">Open source is not a license model</span> — it is a political stance. Code that cannot be read, modified, and shared controls rather than serves. Free software is <span class="radical">free society</span>, compiled.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <section id="projects">
+    <div class="section-header reveal">
+      <span class="section-num">04</span>
+      <h2 class="section-title">OPERATIONS</h2>
+      <div class="section-line"></div>
+    </div>
+    <p class="manifesto-text reveal" style="margin-bottom:2.5rem;color:rgba(0,255,65,0.6);">// Active deployments. Click to access.</p>
+
+    <div class="section-subtitle reveal">TRANSMISSION_LOG</div>
+    <a href="https://delta-fsociety.codeberg.page/#home" target="_blank" class="blog-card reveal">
+      <div class="blog-left">
+        <div class="blog-icon">&#128225;</div>
+        <div>
+          <div class="blog-label">BLOG // CODEBERG PAGES</div>
+          <div class="blog-title">delta-fsociety.codeberg.page</div>
+          <div class="blog-desc">Dispatches from the edge. Thoughts on freedom, code, anarchism, and the machines we're building to take back the net.</div>
+        </div>
+      </div>
+      <div class="blog-arrow">&#10230;</div>
     </a>
-  </div>
 
-  <div class="embed-btn">
-    <a href="https://www.coffeebede.com/delta">
-      <img src="https://coffeebede.ir/DashboardTemplateV2/app-assets/images/banner/default-yellow.svg" alt="CoffeeBede">
-    </a>
-  </div>
+    <div class="section-subtitle reveal" style="margin-top:2rem;">ACTIVE_PROJECTS</div>
+    <div class="projects-grid">
+      <a href="https://zist.digital" target="_blank" class="proj proj-cyan reveal">
+        <div class="proj-head">
+          <div class="proj-dot"></div>
+          <span class="proj-live">LIVE</span>
+          <div class="proj-role">FOUNDER</div>
+        </div>
+        <div class="proj-name">zist.digital</div>
+        <div class="proj-desc">Founded and built from the ground up. A digital space born from the belief that the web should belong to its users — not corporations.</div>
+        <div class="proj-foot">
+          <span class="proj-tag">INFRASTRUCTURE</span>
+          <span class="proj-tag">FOSS</span>
+          <span class="proj-arr">&#8594;</span>
+        </div>
+      </a>
+      <a href="https://rootandrude.monster" target="_blank" class="proj proj-red reveal">
+        <div class="proj-head">
+          <div class="proj-dot"></div>
+          <span class="proj-live">LIVE</span>
+          <div class="proj-role">CYBERSEC SPECIALIST</div>
+        </div>
+        <div class="proj-name">rootandrude.monster</div>
+        <div class="proj-desc">Cybersecurity operations, research, and community. Root access to knowledge. Rude awakening to the comfortable lies of "secure" systems.</div>
+        <div class="proj-foot">
+          <span class="proj-tag">SECURITY</span>
+          <span class="proj-tag">RESEARCH</span>
+          <span class="proj-arr">&#8594;</span>
+        </div>
+      </a>
+      <a href="https://bndlug.codeberg.page/" target="_blank" class="proj proj-yellow reveal">
+        <div class="proj-head">
+          <div class="proj-dot"></div>
+          <span class="proj-live">LIVE</span>
+          <div class="proj-role">PROGRAM MANAGER</div>
+        </div>
+        <div class="proj-name">BND LUG</div>
+        <div class="proj-desc">Linux Users Group. Community-driven, freedom-oriented. Organizing humans around the most powerful idea in software: that code should be free.</div>
+        <div class="proj-foot">
+          <span class="proj-tag">COMMUNITY</span>
+          <span class="proj-tag">GNU+LINUX</span>
+          <span class="proj-arr">&#8594;</span>
+        </div>
+      </a>
+    </div>
+  </section>
 
-  <div class="email">Email: <a href="mailto:delta@zist.digital">delta@zist.digital</a></div>
-  <div class="flowers">🌸💜🌸</div>
-</div>
+  <div class="divider"></div>
+
+  <section id="contact">
+    <div class="section-header reveal">
+      <span class="section-num">05</span>
+      <h2 class="section-title">SECURE_CHANNEL</h2>
+      <div class="section-line"></div>
+    </div>
+    <p class="manifesto-text reveal" style="margin-bottom:2rem;color:rgba(0,255,65,0.6);">// All channels monitored by exactly no one. Prefer encrypted comms. Use Tor if paranoid (you should be).</p>
+    <div class="contact-grid">
+      <a href="mailto:delta@zist.digital" class="cc cc-em reveal">
+        <div class="cc-icon">&#9993;</div>
+        <div class="cc-info"><div class="cc-platform">Email // Encrypted</div><div class="cc-handle">delta@zist.digital</div></div>
+        <div class="cc-arr">&#8594;</div>
+      </a>
+      <a href="https://github.com/Deltafsociety" target="_blank" class="cc cc-gh reveal">
+        <div class="cc-icon">&#9901;</div>
+        <div class="cc-info"><div class="cc-platform">GitHub // Code Liberation</div><div class="cc-handle">Deltafsociety</div></div>
+        <div class="cc-arr">&#8594;</div>
+      </a>
+      <a href="https://t.me/deltaez" target="_blank" class="cc cc-tg reveal">
+        <div class="cc-icon">&#128225;</div>
+        <div class="cc-info"><div class="cc-platform">Telegram // Messaging</div><div class="cc-handle">t.me/deltaez</div></div>
+        <div class="cc-arr">&#8594;</div>
+      </a>
+      <a href="https://matrix.to/#/@delta_fs:matrix.org" target="_blank" class="cc cc-mx reveal">
+        <div class="cc-icon">&#11041;</div>
+        <div class="cc-info"><div class="cc-platform">Matrix // Federated</div><div class="cc-handle">@delta_fs:matrix.org</div></div>
+        <div class="cc-arr">&#8594;</div>
+      </a>
+      <a href="https://mastodon.social/@delta_fsociety" target="_blank" class="cc cc-md reveal">
+        <div class="cc-icon">&#128024;</div>
+        <div class="cc-info"><div class="cc-platform">Mastodon // Fediverse</div><div class="cc-handle">@delta_fsociety@mastodon.social</div></div>
+        <div class="cc-arr">&#8594;</div>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="footer-ascii">
+ ██████╗ ███████╗██╗  ████████╗ █████╗
+ ██╔══██╗██╔════╝██║  ╚══██╔══╝██╔══██╗
+ ██║  ██║█████╗  ██║     ██║   ███████║
+ ██║  ██║██╔══╝  ██║     ██║   ██╔══██║
+ ██████╔╝███████╗███████╗██║   ██║  ██║
+ ╚═════╝ ╚══════╝╚══════╝╚═╝   ╚═╝  ╚═╝</div>
+  <p class="footer-text">// NO GODS // NO MASTERS // NO PROPRIETARY SOFTWARE //</p>
+  <p class="footer-text" style="margin-top:0.5rem;opacity:0.4;">DELTA &copy; <span id="year"></span> &#8212; COPYLEFT. ALL RIGHTS REVERSED.</p>
+</footer>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  const loading = document.getElementById('loading');
-  const card = document.getElementById('card');
-  const flowers = document.querySelectorAll('.flower');
-
-  // Minimum loading time
-  const minTime = 1500;
-  const start = Date.now();
-
-  function showCard() {
-    loading.style.opacity = 0;
-    setTimeout(() => {
-      loading.style.display = 'none';
-      card.classList.add('show');
-    }, 500);
+// MATRIX RAIN
+(function(){
+  var canvas = document.getElementById('matrix-rain');
+  var ctx = canvas.getContext('2d');
+  function resize(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  var chars = 'アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789ABCDEF<>{}[]|/*&^%$#@!~';
+  var fontSize = 14;
+  var drops = [];
+  function initDrops(){ var cols = Math.floor(canvas.width/fontSize); drops = []; for(var i=0;i<cols;i++) drops.push(Math.random()*-100); }
+  initDrops();
+  window.addEventListener('resize', initDrops);
+  function draw(){
+    ctx.fillStyle = 'rgba(0,0,0,0.05)';
+    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.font = fontSize + 'px monospace';
+    for(var i=0;i<drops.length;i++){
+      var c = chars[Math.floor(Math.random()*chars.length)];
+      ctx.fillStyle = Math.random()>0.95 ? '#fff' : (Math.random()>0.7 ? '#00ff41' : '#003d10');
+      ctx.fillText(c, i*fontSize, drops[i]*fontSize);
+      if(drops[i]*fontSize > canvas.height && Math.random()>0.975) drops[i]=0;
+      drops[i]++;
+    }
   }
+  setInterval(draw, 40);
+})();
 
-  const elapsed = Date.now() - start;
-  if(elapsed >= minTime){
-    showCard();
-  } else {
-    setTimeout(showCard, minTime - elapsed);
-  }
-
-  // Scroll animation for flowers
-  window.addEventListener('scroll', () => {
-    const scroll = window.scrollY;
-    flowers.forEach((f, i) => {
-      const speed = (i+1) * 0.2; // adjust for gentle movement
-      f.style.transform = `translateY(${scroll*speed}px)`;
-    });
+// CURSOR
+(function(){
+  var cursor = document.getElementById('cursor');
+  var trail = document.getElementById('trail');
+  var mx=0, my=0;
+  document.addEventListener('mousemove', function(e){
+    mx=e.clientX; my=e.clientY;
+    cursor.style.left=mx+'px'; cursor.style.top=my+'px';
+    setTimeout(function(){ trail.style.left=mx+'px'; trail.style.top=my+'px'; }, 80);
   });
+})();
+
+// TIME
+(function(){
+  function tick(){
+    var t = new Date().toISOString().replace('T',' ').slice(0,19)+' UTC';
+    document.getElementById('live-time').textContent = t;
+  }
+  tick(); setInterval(tick,1000);
+  document.getElementById('year').textContent = new Date().getFullYear();
+})();
+
+// REVEAL
+(function(){
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        var d = parseInt(entry.target.dataset.delay||0);
+        setTimeout(function(){ entry.target.classList.add('visible'); }, d);
+      }
+    });
+  }, {threshold:0.1});
+  document.querySelectorAll('.reveal').forEach(function(el,i){
+    el.dataset.delay = (i%5)*100;
+    obs.observe(el);
+  });
+})();
+
+// GLITCH
+(function(){
+  function glitch(){
+    var dur = Math.random()*150+50;
+    var x = (Math.random()-0.5)*6;
+    var y = (Math.random()-0.5)*3;
+    document.body.style.filter = 'hue-rotate('+Math.floor(Math.random()*30)+'deg) contrast(1.1)';
+    document.body.style.transform = 'translate('+x+'px,'+y+'px)';
+    setTimeout(function(){ document.body.style.filter=''; document.body.style.transform=''; }, dur);
+    setTimeout(glitch, Math.random()*8000+2000);
+  }
+  setTimeout(glitch, 4000);
+})();
+
+// CARD GLOW
+document.querySelectorAll('.cc,.identity-card,.proj').forEach(function(card){
+  card.addEventListener('mousemove', function(e){
+    var r = card.getBoundingClientRect();
+    var x = ((e.clientX-r.left)/r.width)*100;
+    var y = ((e.clientY-r.top)/r.height)*100;
+    card.style.backgroundImage = 'radial-gradient(circle at '+x+'% '+y+'%, rgba(255,255,255,0.04), transparent 60%)';
+  });
+  card.addEventListener('mouseleave', function(){ card.style.backgroundImage=''; });
 });
 </script>
-
 </body>
 </html>
+
